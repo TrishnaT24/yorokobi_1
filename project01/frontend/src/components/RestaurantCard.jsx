@@ -1,6 +1,4 @@
-
 import React from 'react';
-
 const RestaurantCard = ({ restaurant }) => {
   if (!restaurant) return <div>No restaurant data available</div>;
 
