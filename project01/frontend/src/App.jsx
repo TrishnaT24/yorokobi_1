@@ -5,7 +5,7 @@ import Map from './components/Map';
 import { BrowserRouter as Router, Route, Routes } from 'react-router-dom';
 import Home from './components/Home';
 import Filter from './components/Filter';
-import Card from './components/Card'; // Import Card component
+import Card from './components/Card';
 
 function App() {
   const [restaurants, setRestaurants] = useState([]);
@@ -15,7 +15,8 @@ function App() {
   useEffect(() => {
     const fetchRestaurants = async () => {
       try {
-        const response = await fetch('http://localhost:3000/api/restaurants/restaurants');
+        // Updated URL to match the correct route
+        const response = await fetch('http://localhost:3000/api/restaurants');
         if (!response.ok) {
           throw new Error(`HTTP error! status: ${response.status}`);
         }
@@ -52,7 +53,6 @@ function App() {
           }
         />
         <Route path="/map" element={<Map />} />
-        {/* Add the Card route here */}
         <Route path="/card" element={<Card />} />
       </Routes>
     </Router>

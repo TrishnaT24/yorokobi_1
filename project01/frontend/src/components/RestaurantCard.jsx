@@ -37,7 +37,7 @@ const RestaurantCard = ({ restaurant }) => {
                   clipRule="evenodd"
                 />
               </svg>
-              <span className="text-slate-600 ml-1.5">{restaurant.rating}</span>
+              <span className="text-slate-600 ml-1.5">{restaurant.rating.toFixed(2)}</span>
             </div>
           </div>
           <button
