@@ -5,11 +5,12 @@ import Map from './components/Map';
 import { BrowserRouter as Router, Route, Routes } from 'react-router-dom';
 import Home from './components/Home';
 import Filter from './components/Filter';
+import Card from './components/Card'; // Import Card component
+
 function App() {
   const [restaurants, setRestaurants] = useState([]);
   const [error, setError] = useState(null);
   const [loading, setLoading] = useState(true);
-  const [filteredRestaurants, setFilteredRestaurants] = useState([]);
 
   useEffect(() => {
     const fetchRestaurants = async () => {
@@ -39,16 +40,22 @@ function App() {
     <Router>
       <Header />
       <Routes>
-      <Route path='/' element={<Home/>}/>
-      <Route path='/book-table' element={<div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4 p-4 ml-20">
-      
-      {restaurants.map((restaurant, index) => (
-        <RestaurantCard key={index} restaurant={restaurant} />
-      ))}
-    </div>}/>
-    <Route path='/map' element={<Map/>}/>
+        <Route path="/" element={<Home />} />
+        <Route
+          path="/book-table"
+          element={
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4 p-4 ml-20">
+              {restaurants.map((restaurant, index) => (
+                <RestaurantCard key={index} restaurant={restaurant} />
+              ))}
+            </div>
+          }
+        />
+        <Route path="/map" element={<Map />} />
+        {/* Add the Card route here */}
+        <Route path="/card" element={<Card />} />
       </Routes>
-      </Router>
+    </Router>
   );
 }
 
