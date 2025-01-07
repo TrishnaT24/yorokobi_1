@@ -19,7 +19,11 @@ const restaurantSchema = new mongoose.Schema({
   rating: { type: Number },
   reviewsCount: { type: Number },
   telephone: { type: String },
-  thumbnail: { type: String }
+  thumbnail: { type: String },
+  queue_size: {
+    type: Number,
+    default: 0, // default value if not present
+  }
 }, { timestamps: true }); // Adds createdAt and updatedAt fields
 
 // Create the model
