@@ -30,7 +30,7 @@ const Map = () => {
 
     const fetchRestaurants = async () => {
       try {
-        const response = await fetch('http://localhost:3000/api/restaurants/restaurants');
+        const response = await fetch('http://localhost:3000/api/restaurants');
         if (!response.ok) {
           throw new Error(`HTTP error! status: ${response.status}`);
         }
