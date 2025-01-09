@@ -2,7 +2,7 @@ const express = require('express');
 const router = express.Router();
 const { saveRestaurantsToDB } = require('../controllers/restaurantController');
 const Restaurant = require('../models/Restaurant');
-
+const { login, signup } = require("../controllers/authController");
 // Route to save restaurants
 router.get('/fetch-restaurants', async (req, res) => {
   try {
@@ -103,5 +103,8 @@ router.post('/submit-rating', async (req, res) => {
     });
   }
 });
+//login and signup requ
+router.post("/login", login);  
+router.post("/signup", signup); 
 
 module.exports = router;
