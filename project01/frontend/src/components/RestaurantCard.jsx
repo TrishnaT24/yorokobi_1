@@ -54,11 +54,9 @@ const RestaurantCard = ({ restaurant }) => {
           </div>
           <button
             onClick={() => handleClick('menu')}
-            className="ml-auto w-12 h-12 rounded-full bg-slate-800 text-white flex justify-center items-center transition-all hover:bg-slate-700 focus:bg-slate-700"
+            className="ml-auto w-28 h-12 rounded bg-slate-800 text-white flex justify-center items-center transition-all hover:bg-slate-700 focus:bg-slate-700"
           >
-            <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor" className="w-6 h-6">
-              <path d="M6.62 10.79c.47-.47.47-1.23 0-1.7l-1.41-1.41c-.47-.47-1.23-.47-1.7 0l-3 3c-.47.47-.47 1.23 0 1.7l1.41 1.41c.47.47 1.23.47 1.7 0l3-3zM15 3H9C8.45 3 8 3.45 8 4v4H4C3.45 8 3 8.45 3 9v12c0 .55.45 1 1 1h16c.55 0 1-.45 1-1V9c0-.55-.45-1-1-1h-4V4c0-.55-.45-1-1-1z" />
-            </svg>
+            View Menu
           </button>
           <ol>
             <li>{restaurant.cuisines.join('\t')}</li>
