@@ -2,7 +2,7 @@ import React from "react";
 import { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { Link } from "react-router-dom";
-function Login() {
+function Login({setIsLoggedIn,setUsername}) {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const navigate = useNavigate();
@@ -25,10 +25,12 @@ function Login() {
 
     if (response.ok) {
       const data = await response.json();
-      console.log(data);
+      // console.log(data);
       if (rememberMe) {
         localStorage.setItem("user", JSON.stringify(data)); // Save user data for persistence
       }
+      setIsLoggedIn(true);
+      setUsername(data.username);
       navigate("/"); // Navigate to the home page
     } else {
       console.error("Login failed"); // Handle login failure
@@ -154,7 +156,7 @@ function Login() {
                 </div>
                 <div>
                   <a
-                    href="javascript:void(0);"
+                    href="#"
                     className="text-blue-600 font-semibold text-sm hover:underline"
                   >
                     Forgot Password?

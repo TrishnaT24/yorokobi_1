@@ -9,6 +9,8 @@ import FilterComponent from "./components/FilterComponent";
 import Login from "./components/Login";
 import Signup from "./components/Signup";
 function App() {
+  const [isLoggedIn, setIsLoggedIn] = useState(false);
+  const [username, setUsername] = useState("");
   const [restaurants, setRestaurants] = useState([]);
   const [filteredRestaurants, setFilteredRestaurants] = useState([]);
   const [filters, setFilters] = useState({
@@ -35,6 +37,38 @@ function App() {
 
     fetchRestaurants();
   }, []);
+
+
+
+  // Check if user data exists in localStorage on component mount
+  useEffect(() => {
+    const userData = localStorage.getItem("user");
+    // console.log(userData);
+    if (userData) {
+      try {
+        const user = JSON.parse(userData);
+        console.log("Parsed user data:", user);
+        
+        setIsLoggedIn(true);
+        setUsername(user.username);
+        
+        // Verify state updates
+        console.log("Setting username to:", user.username);
+      } catch (error) {
+        console.error("Error parsing user data:", error);
+        localStorage.removeItem("user"); // Clear invalid data
+      }
+
+    }
+  }, []);
+
+  const handleLogout = () => {
+    localStorage.removeItem("user");
+    setIsLoggedIn(false);
+    setUsername("");
+    // Redirect to home page after logout
+    window.location.href = "/";
+  };
 
   useEffect(() => {
     const applyFilters = () => {
@@ -90,11 +124,16 @@ function App() {
 
   return (
     <Router>
-      <Header />
+      <Header isLoggedIn={isLoggedIn} username={username} handleLogout={handleLogout}/>
       <Routes>
-        <Route path="/login" element={<Login />} />
-        <Route path="/signup" element={<Signup />} />
-        <Route path="/" element={<Home />} />
+        <Route path="/login" element={<Login
+        setIsLoggedIn={setIsLoggedIn}
+        setUsername={setUsername} />} />
+        <Route path="/signup" element={<Signup 
+        setUsername={setUsername} 
+        setIsLoggedIn={setIsLoggedIn} 
+        />} />
+        <Route path="/" element={<Home isLoggedIn={isLoggedIn} username={username} />} />
         <Route
           path="/book-table"
           element={
