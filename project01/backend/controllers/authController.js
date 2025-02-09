@@ -9,7 +9,12 @@ const login = async (req, res) => {
     const isMatch = await bcrypt.compare(password, user.password);
     if (!isMatch) return res.status(401).send("Invalid email or password");
 
-    res.status(200).json({ message: "Login successful" });
+    res.status(200).json({ 
+      message: "Login successful",
+      username: user.username,
+     }
+     
+    );
   } catch (error) {
     res.status(500).send("Internal Server Error");
   }
@@ -38,7 +43,10 @@ const signup = async (req, res) => {
       await newUser.save();
   
       // Return a success response
-      res.status(201).json({ message: "User registered successfully" });
+      res.status(201).json({ 
+        message: "User registered successfully",
+        username: req.body.username,
+       });
     } catch (error) {
       console.error(error);
       res.status(500).json({ message: "Internal Server Error" });
