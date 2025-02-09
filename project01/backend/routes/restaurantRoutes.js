@@ -24,7 +24,6 @@ router.get('/', async(req, res) => {
     res.status(500).send('Failed to fetch restaurants from the database.');
   }
 });
-
 // Get single restaurant by ID
 router.get('/:id', async (req, res) => {
   try {
