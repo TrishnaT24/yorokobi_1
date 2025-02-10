@@ -107,18 +107,25 @@ router.post("/login", login);
 router.post("/signup", signup); 
 
 router.post('/update-queue', async (req, res) => {
-  const { restaurantID, guests } = req.body;
+  const { restaurantID, guests, name } = req.body;
 
-  if (!restaurantID || guests === undefined) {
+  if (!restaurantID || guests === undefined || !name) {
     return res.status(400).json({
       success: false,
-      message: "Missing data (restaurantID or guests)",
+      message: "Missing data (restaurantID, guests, or name)",
     });
   }
 
   try {
-    // Find the restaurant by ID
-    const restaurant = await Restaurant.findById(restaurantID);
+    // Find the restaurant by ID and update it atomically
+    const restaurant = await Restaurant.findByIdAndUpdate(
+      restaurantID, 
+      {
+        $inc: { queue_size: guests }, // Increment queue size
+        $push: { names: name } // Add name to names array
+      }, 
+      { new: true } // Return the updated document
+    );
 
     if (!restaurant) {
       return res.status(404).json({
@@ -128,26 +135,22 @@ router.post('/update-queue', async (req, res) => {
       });
     }
 
-    // Add guests to the existing queue_size
-    const currentQueueSize = restaurant.queue_size || 0;
-    restaurant.queue_size = currentQueueSize + guests;
-
-    // Save the updated restaurant back to the database
-    await restaurant.save();
-
     return res.status(200).json({
       success: true,
-      message: "Queue size updated successfully!",
+      message: "Queue updated successfully!",
       newQueueSize: restaurant.queue_size,
+      updatedNames: restaurant.names,
     });
   } catch (error) {
     console.error("Error:", error);
     return res.status(500).json({
       success: false,
-      message: "Failed to update queue size",
+      message: "Failed to update queue",
       error: error.message,
     });
   }
 });
+
+
 
 module.exports = router;

@@ -8,9 +8,14 @@ import Card from "./components/Card";
 import FilterComponent from "./components/FilterComponent";
 import Login from "./components/Login";
 import Signup from "./components/Signup";
+
 function App() {
-  const [isLoggedIn, setIsLoggedIn] = useState(false);
-  const [username, setUsername] = useState("");
+  // Initialize login state with localStorage
+  const storedUser = localStorage.getItem("user");
+  const parsedUser = storedUser ? JSON.parse(storedUser) : null;
+
+  const [isLoggedIn, setIsLoggedIn] = useState(!!parsedUser);
+  const [username, setUsername] = useState(parsedUser?.username || "");
   const [restaurants, setRestaurants] = useState([]);
   const [filteredRestaurants, setFilteredRestaurants] = useState([]);
   const [filters, setFilters] = useState({
@@ -38,29 +43,12 @@ function App() {
     fetchRestaurants();
   }, []);
 
-
-
-  // Check if user data exists in localStorage on component mount
+  // Keep localStorage and state in sync
   useEffect(() => {
-    const userData = localStorage.getItem("user");
-    // console.log(userData);
-    if (userData) {
-      try {
-        const user = JSON.parse(userData);
-        console.log("Parsed user data:", user);
-        
-        setIsLoggedIn(true);
-        setUsername(user.username);
-        
-        // Verify state updates
-        console.log("Setting username to:", user.username);
-      } catch (error) {
-        console.error("Error parsing user data:", error);
-        localStorage.removeItem("user"); // Clear invalid data
-      }
-
+    if (isLoggedIn && username) {
+      localStorage.setItem("user", JSON.stringify({ username }));
     }
-  }, []);
+  }, [isLoggedIn, username]);
 
   const handleLogout = () => {
     localStorage.removeItem("user");
@@ -124,21 +112,22 @@ function App() {
 
   return (
     <Router>
-      <Header isLoggedIn={isLoggedIn} username={username} handleLogout={handleLogout}/>
+      <Header isLoggedIn={isLoggedIn} username={username} handleLogout={handleLogout} />
       <Routes>
-        <Route path="/login" element={<Login
-        setIsLoggedIn={setIsLoggedIn}
-        setUsername={setUsername} />} />
-        <Route path="/signup" element={<Signup 
-        setUsername={setUsername} 
-        setIsLoggedIn={setIsLoggedIn} 
-        />} />
+        <Route
+          path="/login"
+          element={<Login setIsLoggedIn={setIsLoggedIn} setUsername={setUsername} />}
+        />
+        <Route
+          path="/signup"
+          element={<Signup setUsername={setUsername} setIsLoggedIn={setIsLoggedIn} />}
+        />
         <Route path="/" element={<Home isLoggedIn={isLoggedIn} username={username} />} />
         <Route
           path="/book-table"
           element={
             <div className="p-4">
-              <div className="relative mb-4 flex  justify-center items-center space-x-4">
+              <div className="relative mb-4 flex justify-center items-center space-x-4">
                 <div className="relative">
                   <button
                     onClick={toggleCuisineDropdown}
@@ -150,16 +139,14 @@ function App() {
                     <div className="absolute z-10 mt-2 bg-white border rounded shadow-lg">
                       <FilterComponent
                         filterOptions={{ cuisines: filterOptions.cuisines }}
-                        onFilterChange={(value) =>
-                          handleFilterChange("cuisines", value)
-                        }
+                        onFilterChange={(value) => handleFilterChange("cuisines", value)}
                       />
                     </div>
                   )}
                 </div>
 
                 {/* Rating Filter Button */}
-                <div className="relative ">
+                <div className="relative">
                   <button
                     onClick={toggleRatingDropdown}
                     className="bg-slate-800 text-white px-4 py-2 rounded ml-50"
@@ -170,9 +157,7 @@ function App() {
                     <div className="absolute z-10 mt-2 bg-white border rounded shadow-lg">
                       <FilterComponent
                         filterOptions={{ rating: filterOptions.rating }}
-                        onFilterChange={(value) =>
-                          handleFilterChange("rating", value)
-                        }
+                        onFilterChange={(value) => handleFilterChange("rating", value)}
                       />
                     </div>
                   )}
