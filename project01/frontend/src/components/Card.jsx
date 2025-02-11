@@ -1,21 +1,46 @@
 import { useLocation } from 'react-router-dom';
 import { useState, useEffect } from 'react';
 import RateUs from './RateUs';
+import QueueModal from './QueueModal'; // Import the new QueueModal 
 
 const Card = () => {
     const location = useLocation();
-    const [restaurant, setRestaurant] = useState(location.state?.restaurant);
+    const [restaurant, setRestaurant] = useState(null);
     const [currentPhotoIndex, setCurrentPhotoIndex] = useState(0);
     const [counter, setCounter] = useState(30);
     const [isModalOpen, setIsModalOpen] = useState(false);
     const [loading, setLoading] = useState(false);
     const [error, setError] = useState(null);
     const [isQueueModalOpen, setIsQueueModalOpen] = useState(false);
-    const [sliderValue, setSliderValue] = useState(1);
+    const [queueSize, setQueueSize] = useState(0);
+
     const openModal = () => setIsModalOpen(true);
     const closeModal = () => setIsModalOpen(false);
     const openQueueModal = () => setIsQueueModalOpen(true);
     const closeQueueModal = () => setIsQueueModalOpen(false);
+
+    useEffect(() => {
+        if (location.state?.restaurant?._id) {
+            const restaurantId = location.state.restaurant._id;
+            // Get stored restaurant data specific to this restaurant ID
+            const storedRestaurant = localStorage.getItem(`restaurant_${restaurantId}`);
+            
+            if (storedRestaurant) {
+                const parsedRestaurant = JSON.parse(storedRestaurant);
+                setRestaurant(parsedRestaurant);
+                setQueueSize(parsedRestaurant.queue_size || 0);
+            } else {
+                // If no stored data, use the data from location state
+                setRestaurant(location.state.restaurant);
+                setQueueSize(location.state.restaurant.queue_size || 0);
+                // Store initial data
+                localStorage.setItem(`restaurant_${restaurantId}`, 
+                    JSON.stringify(location.state.restaurant)
+                );
+            }
+        }
+    }, [location.state]);
+
     const fetchUpdatedRestaurant = async () => {
         if (!restaurant?._id) return;
 
@@ -31,9 +56,12 @@ const Card = () => {
             }
 
             if (data.success && data.restaurant) {
+                // Update both state and localStorage with restaurant-specific key
                 setRestaurant(data.restaurant);
-                // Store the updated rating in localStorage
-                localStorage.setItem(`rating-${restaurant._id}`, data.restaurant.rating);
+                setQueueSize(data.restaurant.queue_size || 0);
+                localStorage.setItem(`restaurant_${data.restaurant._id}`, 
+                    JSON.stringify(data.restaurant)
+                );
             } else {
                 throw new Error('Invalid response format');
             }
@@ -76,12 +104,18 @@ const Card = () => {
             setCounter((prevCounter) => {
                 const newCounter = prevCounter === 0 ? 30 : prevCounter - 1;
                 localStorage.setItem("counter", newCounter);
+
+                // Fetch updated restaurant data when counter reaches 0
+                if (newCounter === 0) {
+                    fetchUpdatedRestaurant();
+                }
+
                 return newCounter;
             });
         }, 1000);
 
         return () => clearInterval(timer);
-    }, []);
+    }, [restaurant?._id]); // Add restaurant._id as dependency
 
     if (!restaurant) return <div>No restaurant data available</div>;
 
@@ -162,14 +196,24 @@ const Card = () => {
                             {restaurant.reviewsCount} reviews
                         </div>
                     </div>
-                    <div className="countdown mt-4 text-xl font-bold text-gray-700">
-                        <span style={{ "--value": counter }}>
-                            Queue size refresh in {counter} seconds
-                        </span>
+                    <div className="mt-4 space-y-2">
+                        <div className="text-xl font-bold text-gray-700">
+                            Current Queue Size: {loading ? "Updating..." : queueSize} people
+                        </div>
+                        <div className="countdown text-xl font-bold text-gray-700">
+                            <span style={{ "--value": counter }}>
+                                Queue size refresh in {counter} seconds
+                            </span>
+                        </div>
+                        {error && (
+                            <div className="text-red-500 text-sm">
+                                Failed to update queue size. Please try again later.
+                            </div>
+                        )}
                     </div>
                     <div className="flex flex-col space-y-4">
-                        <div className="flex justify-center space-x-4">
-                            <button onClick={openQueueModal} className="text-blue hover:before:bg-redborder-blue-500 relative h-[50px] w-40 overflow-hidden border border-blue-500 bg-white px-3 text-blue-500 shadow-2xl transition-all before:absolute before:bottom-0 before:left-0 before:top-0 before:z-0 before:h-full before:w-0 before:bg-blue-500 before:transition-all before:duration-500 hover:text-white hover:shadow-blue-500 hover:before:left-0 hover:before:w-full">
+                        <div className="flex flex-col items-center space-y-4">
+                            <button onClick={openQueueModal} className="mt-8 text-blue hover:before:bg-redborder-blue-500 relative h-[50px] w-40 overflow-hidden border border-blue-500 bg-white px-3 text-blue-500 shadow-2xl transition-all before:absolute before:bottom-0 before:left-0 before:top-0 before:z-0 before:h-full before:w-0 before:bg-blue-500 before:transition-all before:duration-500 hover:text-white hover:shadow-blue-500 hover:before:left-0 hover:before:w-full">
                                 <span className="relative z-10">Join Queue 🎉</span>
                             </button>
                             <button onClick={() => openModal(restaurant._id)} className="text-yellow hover:before:bg-redborder-yellow-500 relative h-[50px] w-40 overflow-hidden border border-yellow-500 bg-white px-3 text-yellow-500 shadow-2xl transition-all before:absolute before:bottom-0 before:left-0 before:top-0 before:z-0 before:h-full before:w-0 before:bg-yellow-500 before:transition-all before:duration-500 hover:text-white hover:shadow-yellow-500 hover:before:left-0 hover:before:w-full">
@@ -177,46 +221,27 @@ const Card = () => {
                             </button>
                         </div>
                     </div>
+
                 </div>
 
                 {isModalOpen && (
-                    <RateUs 
-                        closeModal={closeModal} 
-                        restaurantID={restaurant._id} 
+                    <RateUs
+                        closeModal={closeModal}
+                        restaurantID={restaurant._id}
                         onRatingSuccess={handleRatingSuccess}
                     />
-                )} 
+                )}
                 {isQueueModalOpen && (
-    <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
-        <div className="bg-white rounded-lg p-8 w-96">
-            <h2 className="text-xl font-semibold mb-4">Select the number of Guests</h2>
-            <input
-                type="range"
-                min="1"
-                max="8"
-                value={sliderValue}
-                onChange={(e) => setSliderValue(Number(e.target.value))}
-                className="w-full"
-            />
-            <p className="text-center mt-2">Selected Size: {sliderValue}</p>
-            <div className="flex justify-end mt-4">
-                <button
-                    onClick={closeQueueModal}
-                    className="bg-red-500 text-white px-4 py-2 rounded mr-2"
-                >
-                    Close
-                </button>
-                <button
-                    onClick={closeQueueModal}
-                    className="bg-blue-500 text-white px-4 py-2 rounded"
-                >
-                    Confirm
-                </button>
-            </div>
-        </div>
-    </div>
-)}
-
+                    <QueueModal
+                        restaurant={restaurant}
+                        closeQueueModal={closeQueueModal}
+                        onQueueSuccess={() => {
+                            closeQueueModal();
+                            // Optionally refresh restaurant data here if needed
+                            fetchUpdatedRestaurant();
+                        }}
+                    />
+                )}
             </div>
         </div>
     );

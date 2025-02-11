@@ -7,12 +7,24 @@ const RestaurantCard = ({ restaurant }) => {
   if (!restaurant) return <div>No restaurant data available</div>;
 
   const handleClick = (action) => {
-    if (action === 'menu' && restaurant.menu) {
-      window.location.href = restaurant.menu; // Redirects to the menu URL
-    } else {
-      alert('Action not available');
-    }
+      if (action === 'menu' && restaurant.menu) {
+          window.location.href = restaurant.menu;
+      } else {
+          alert('Action not available');
+      }
   };
+  const handleReserveClick = () => {
+    // Clear previous restaurant data if it exists
+    const previousRestaurantId = localStorage.getItem('currentRestaurantId');
+    if (previousRestaurantId) {
+        localStorage.removeItem(`restaurant_${previousRestaurantId}`);
+    }
+    
+    // Store the current restaurant ID
+    localStorage.setItem('currentRestaurantId', restaurant._id);
+    
+    navigate('/card', { state: { restaurant } });
+};
 
   return (
     <>
@@ -52,13 +64,13 @@ const RestaurantCard = ({ restaurant }) => {
         </div>
         <div className="group my-3 inline-flex flex-wrap justify-center items-center gap-2"></div>
         <div className="px-4 pb-4 pt-0 mt-2">
-          <button
+        <button
             className="w-full rounded-md bg-slate-800 py-2 px-4 border border-transparent text-center text-sm text-white transition-all shadow-md hover:shadow-lg focus:bg-slate-700 focus:shadow-none active:bg-slate-700 hover:bg-slate-700 active:shadow-none disabled:pointer-events-none disabled:opacity-50 disabled:shadow-none"
             type="button"
-            onClick={() => navigate('/card', { state: { restaurant } })} 
-          >
+            onClick={handleReserveClick}
+        >
             Reserve
-          </button>
+        </button>
         </div>
       </div>
     </>

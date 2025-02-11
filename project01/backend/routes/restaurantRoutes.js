@@ -107,4 +107,48 @@ router.post('/submit-rating', async (req, res) => {
 router.post("/login", login);  
 router.post("/signup", signup); 
 
+router.post('/update-queue', async (req, res) => {
+  const { restaurantID, guests } = req.body;
+
+  if (!restaurantID || guests === undefined) {
+    return res.status(400).json({
+      success: false,
+      message: "Missing data (restaurantID or guests)",
+    });
+  }
+
+  try {
+    // Find the restaurant by ID
+    const restaurant = await Restaurant.findById(restaurantID);
+
+    if (!restaurant) {
+      return res.status(404).json({
+        success: false,
+        message: "Restaurant not found",
+        providedId: restaurantID,
+      });
+    }
+
+    // Add guests to the existing queue_size
+    const currentQueueSize = restaurant.queue_size || 0;
+    restaurant.queue_size = currentQueueSize + guests;
+
+    // Save the updated restaurant back to the database
+    await restaurant.save();
+
+    return res.status(200).json({
+      success: true,
+      message: "Queue size updated successfully!",
+      newQueueSize: restaurant.queue_size,
+    });
+  } catch (error) {
+    console.error("Error:", error);
+    return res.status(500).json({
+      success: false,
+      message: "Failed to update queue size",
+      error: error.message,
+    });
+  }
+});
+
 module.exports = router;
