@@ -1,8 +1,10 @@
 const express = require('express');
 const mongoose = require('mongoose');
 const restaurantRoutes = require('./routes/restaurantRoutes'); // Adjust path as needed
-const app = express();
+// const startQueueCleanup = require('./controllers/queueCleanupService');
 
+const app = express();
+// startQueueCleanup();
 app.use(express.json());
 
 const cors = require('cors');
