@@ -1,0 +1,20 @@
+1.fix the layout of ui
+2.rating+review->initialize 0 then avg of ratings from customers
+3.filters->
+ 1. binary-toggle->remaining dropdown
+ veg non veg
+cuisine
+ratings
+location
+
+
+4. queue
+1.assumption->
+everymorning->quesize=0-> then users start entering the queue and the entire day customers can only come through the queue sequence.
+2.direct entry only if queue_size=0
+3.wait time pp->
+1.user-inputs-no of guests-based on that-give estimate time-and then ask? join->yes or no->if no see later.
+
+2.no of people ahead in queue
+
+
