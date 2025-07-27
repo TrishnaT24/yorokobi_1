@@ -33,6 +33,7 @@ function Login({setIsLoggedIn,setUsername}) {
       setUsername(data.username);
       navigate("/"); // Navigate to the home page
     } else {
+      alert("User does not exist")
       console.error("Login failed"); // Handle login failure
     }
   };
