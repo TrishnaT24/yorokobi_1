@@ -43,7 +43,6 @@ app.use(express.json());
 
 // Routes
 app.use('/api/restaurants', restaurantRoutes);
-
 // Error handler
 app.use((err, req, res, next) => {
   console.error(err.stack);
